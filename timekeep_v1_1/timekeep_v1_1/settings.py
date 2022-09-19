@@ -26,7 +26,7 @@ SECRET_KEY = 'c73ewc!d7udd1#=e+&og*26%tc^c!&%4^ud_y5cqr0=xqzjv6&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://orca-app-yfqev.ondigitalocean.app/']
 
 EMAIL_BACKEND = 'django_mailjet.backends.MailjetBackend'
 MAILJET_API_KEY = '959b3fd68a5c225c4efc875ebc52da9a'
