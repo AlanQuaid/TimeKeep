@@ -1,5 +1,6 @@
 asgiref==3.5.2
 gunicorn
+whitenoise
 backports.zoneinfo;python_version<"3.9"
 certifi==2022.6.15
 charset-normalizer==2.1.1
