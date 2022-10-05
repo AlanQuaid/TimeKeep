@@ -110,7 +110,7 @@ def edit(request):
             team.title = title
             team.save()
 
-            messages.info(request, 'The changes was saved')
+            messages.info(request, 'The changes were saved')
 
             return redirect('team:team', team_id=team.id)
 
@@ -171,6 +171,8 @@ def promote(request, user_id):
     team.managers.add(user)
     team.save()
 
+    messages.info(request, f'{ user.username } promoted to Manager.')
+
     # return redirect('')
     return redirect(request.META['HTTP_REFERER'])
 
@@ -180,6 +182,8 @@ def demote(request, user_id):
     user = team.members.all().get(id=user_id)
     team.managers.remove(user)
     team.save()
+
+    messages.info(request, f'{ user.username } demoted to Member.')
 
     # return redirect('account')
     return redirect(request.META['HTTP_REFERER'])
@@ -196,5 +200,7 @@ def kick(request, user_id):
     userprofile = user.userprofile
     userprofile.active_team_id = 0
     userprofile.save()
+
+    messages.info(request, f'{ user.username } removed from team.')
 
     return redirect(request.META['HTTP_REFERER'])
