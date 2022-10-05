@@ -88,11 +88,57 @@
                             </div>
 
                             <div class="card-body">
-                                <ul class="list-group shadow-none">
                                 {% for member in team.members.all %}
-                                    <li class="list-group-item">
-                                        <div class="list-details">
-                                            <span><a href="{% url 'summary:view_user' member.id %}">{{ member.username }}</a></span>
+                                <ul class="list-group shadow-none">
+
+                                    <li class="list-group-item mt-1">
+                                        <div class="row list-details">
+
+                                    <div class="col-md-7">
+                                        <span><a href="{% url 'summary:view_user' member.id %}">{{ member.username }}</a>
+                                                </span>
+                                    </div>
+                                    <div class="col-md-5 float-right">
+                                        {% if member == team.created_by %}(Owner){% endif %}
+                                        {% if member in team.managers.all and member != team.created_by %}(Manager){% endif %}
+                                        {% if member not in team.managers.all and request.user in team.managers.all %}<button type="button" class="btn btn-success btn-sm" onclick="location.href='{% url 'team:promote' member.id %}'">Promote</button>{% endif %}
+                                            {% if member not in team.managers.all and request.user in team.managers.all %}<button type="button" class="btn btn-danger btn-sm" onclick="location.href='{% url 'team:kick' member.id %}'">Kick</button>{% endif %}
+
+
+                                    </div>
+
+
+                                        </div>
+                                    </li>
+                                </ul>
+                                {% endfor %}
+                            </div>
+
+
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-header py-2">
+                                <h4 class="my-0 fw-semibold">Managers</h4>
+                            </div>
+
+                            <div class="card-body">
+                                {% for manager in team.managers.all %}
+                                <ul class="list-group shadow-none">
+
+                                    <li class="list-group-item mt-1">
+
+
+                                        <div class="row list-details">
+
+                                    <div class="col-md-7">
+                                        <span>{{ manager.username }}</span>
+                                    </div>
+                                    <div class="col-md-5 float-right">
+                                        {% if manager == team.created_by %}(Owner){% endif %}
+                                        {% if manager != team.created_by and request.user == team.created_by %}<button type="button" class="btn btn-danger btn-sm" onclick="location.href='{% url 'team:demote' manager.id %}'">Demote</button>{% endif %}
+
+                                    </div>
+
 
                                         </div>
                                     </li>

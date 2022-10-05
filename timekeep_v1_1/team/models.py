@@ -32,6 +32,7 @@ class Team(models.Model):
     title = models.CharField(max_length=255)
     members = models.ManyToManyField(User, related_name='teams')
     created_by = models.ForeignKey(User, related_name='created_teams', on_delete=models.CASCADE)
+    managers = models.ManyToManyField(User, related_name='managers', default=created_by)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=CHOICES_STATUS, default=ACTIVE)
     plan = models.ForeignKey(Plan, related_name='teams', on_delete=models.CASCADE, default=1)

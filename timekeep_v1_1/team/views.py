@@ -20,6 +20,7 @@ def add(request):
         if title:
             team = Team.objects.create(title=title, created_by=request.user)
             team.members.add(request.user)
+            team.managers.add(request.user)
             team.save()
 
             userprofile = request.user.userprofile
@@ -85,6 +86,7 @@ def teams(request):
         if title:
             team = Team.objects.create(title=title, created_by=request.user)
             team.members.add(request.user)
+            team.managers.add(request.user)
             team.save()
 
             userprofile = request.user.userprofile
@@ -161,3 +163,38 @@ def plans(request):
 
     }
     return render(request, 'team/plans.html', context)
+
+@login_required
+def promote(request, user_id):
+    team = get_object_or_404(Team, pk=request.user.userprofile.active_team_id, status=Team.ACTIVE)
+    user = team.members.all().get(id=user_id)
+    team.managers.add(user)
+    team.save()
+
+    # return redirect('')
+    return redirect(request.META['HTTP_REFERER'])
+
+@login_required
+def demote(request, user_id):
+    team = get_object_or_404(Team, pk=request.user.userprofile.active_team_id, status=Team.ACTIVE)
+    user = team.members.all().get(id=user_id)
+    team.managers.remove(user)
+    team.save()
+
+    # return redirect('account')
+    return redirect(request.META['HTTP_REFERER'])
+
+@login_required
+def kick(request, user_id):
+    team = get_object_or_404(Team, pk=request.user.userprofile.active_team_id, status=Team.ACTIVE)
+    user = team.members.all().get(id=user_id)
+    invitation = Invitation.objects.filter(email=user.email)
+    invitation.delete()
+    team.members.remove(user)
+    team.save()
+
+    userprofile = user.userprofile
+    userprofile.active_team_id = 0
+    userprofile.save()
+
+    return redirect(request.META['HTTP_REFERER'])

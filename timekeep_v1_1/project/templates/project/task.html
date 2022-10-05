@@ -12,7 +12,8 @@
         </svg>
 
         <span class="fs-5 fw-semibold "><a href="{% url 'project:projects' %}">Projects</a> /&nbsp;</span>
-        <span class="fs-5 fw-semibold "><a class="active">{{ project.title }}</a></span>
+        <span class="fs-5 fw-semibold "><a href="{% url 'project:project' project.id %}">{{ project.title }}</a> /&nbsp;</span>
+        <span class="fs-5 fw-semibold "><a class="active">{{ task.title }}</a></span>
 
     </div>
     <div class="list-group list-group-flush scrollarea">
@@ -25,12 +26,12 @@
 
 
                             <div class="card-header py-2">
-                                <h4 class="my-0 fw-semibold">Project (Team:{{ active_team.title }})</h4>
+                                <h4 class="my-0 fw-semibold">Task ({{ project.title }} | Team:{{ active_team.title }})</h4>
                             </div>
 
                             <div class="card-body">
 
-                                <h3 class="card-title">{{ project.title }}</h3>
+                                <h3 class="card-title">{{ task.title }}</h3>
 
 
                             </div>
@@ -62,16 +63,6 @@
 
             {% csrf_token %}
 <input name='type' value='add_time' style='display: none'>
-
-                                        <div class="form-group mt-1">
-                                            <label class="fw-semibold">Task</label>
-            <select class="form-control" name="task">
-<option value="">Choose Task</option>
-                    {% for task in tasks %}
-                        <option value="{{ task.id }}">{{ task.title }}</option>
-                    {% endfor %}
-            </select>
-        </div>
 
     <div class="row">
 
@@ -131,87 +122,6 @@
                     </div>
 
                     <div class="col-md-8">
-
-                        <div class="card mb-3">
-                            <div class="card-header py-2 container-fluid">
-                                <div class="row">
-                                    <div class="col-md-9">
-                                        <h4 class="w-75 my-0 fw-semibold">Tasks</h4>
-                                    </div>
-                                    <div class="col-md-3 float-right">
-                                        {% if active_team %}
-                                            {% if team.plan.max_projects_per_team > team.projects.count %}
-                                                    <button type="button"
-                                                            class="btn btn-success px-4 me-md-2 w-100 fw-semibold"
-                                                            data-bs-toggle="modal" data-bs-target="#addTaskModal">Add
-                                                        task
-                                                    </button>
-                                                {% else %}
-
-                                                        {% if team.created_by == request.user %}
-                                                            <button type="button"
-                                                            class="btn btn-success px-4 me-md-2 w-100 fw-semibold"
-                                                            onclick="location.href='{% url 'team:plans' %}'">Upgrade plan
-                                                    </button>
-
-                                                        {% else %}
-                                                            <button type="button"
-                                                            class="btn btn-outline-secondary px-4 me-md-2 w-100 fw-semibold" disabled>Contact team owner to upgrade subscription.
-                                                    </button>
-                                                        {% endif %}
-
-                                                {% endif %}
-                                        {% else %}
-                                        <button type="button" class="btn btn-success px-4 me-md-2 w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#addTaskModal">Add team first</button>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="card-body">
-                                {% if active_team.id %}
-                                {% if tasks %}
-                                <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-
-
-                                    {% for task in tasks %}
-                                    <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm">
-                                            <div class="card-header py-2">
-                                                <h4 class="my-0 fw-semibold">{{ task.title }}</h4>
-                                            </div>
-
-                                            <div class="card-body">
-
-                                                <h5>{{ task.registered_time|format_minutes }}</h5>
-
-                                            </div>
-                                                                                        <div class="card-footer text-center">
-                                <div class="row">
-                                    <div>
-
-
-                                        <button type="button" class="btn btn-outline-secondary px-4 me-md-2 w-100 fw-semibold" onclick="location.href='{% url 'project:task' project.id task.id %}'">Details</button>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                                        </div>
-                                    </div>
-
-                                    {% endfor %}
-
-
-                                </div>
-                                {% else %}
-                                <h5>No tasks yet</h5>
-                                {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-
                         <div class="card mb-3">
                             <div class="card-header py-2 container-fluid">
                                 <div class="row">
@@ -223,7 +133,7 @@
 
                             </div>
                             <div class="card-body">
-                                {% if project.entries.all %}
+                                {% if task.entries.all %}
     <table class="table is-fullwidth" style="text-align: left;">
         <thead>
         <tr>
@@ -235,9 +145,9 @@
         </thead>
 
         <tbody>
-        {% for entry in project.entries.all %}
+        {% for entry in task.entries.all %}
         <tr>
-            <td>{{ entry.created_at }}</td>
+            <td>{{ entry.created_at.date }}</td>
             <td><a href="{% url 'summary:view_user' entry.created_by.id %}">{% firstof entry.created_by.get_full_name entry.created_by.username %}</a></td>
             <td>{{ entry.minutes|format_minutes }}</td>
             <td>
@@ -252,7 +162,7 @@
         <tfoot>
         <tr>
             <th colspan="2">Total</th>
-            <th colspan="2">{{ project.registered_time|format_minutes }}</th>
+            <th colspan="2">{{ task.registered_time|format_minutes }}</th>
         </tr>
         </tfoot>
     </table>
@@ -291,38 +201,6 @@
 
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Edit project</button>
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" backdrop="false">
-        <div class="vertical-alignment-helper">
-            <div class="modal-dialog vertical-align-center">
-                <div class="modal-content">
-                    <div class="modal-header modal-header-own">
-                        <h3 class="modal-title" id="exampleModalLabel">Add Task</h3>
-                        <!--        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>-->
-                    </div>
-
-                    <form method="POST">
-                        {% csrf_token %}
-                        <input name='type' value='add_task' style='display: none'>
-                        <div class="form-floating">
-                            <div>
-                                <input type="text" class="form-control form-control-lg searchbox" name="add_tsk" maxlength="150" placeholder="Task Title">
-
-                            </div>
-                        </div>
-
-
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Add Task</button>
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
 
                         </div>

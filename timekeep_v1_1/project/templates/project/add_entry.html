@@ -16,7 +16,7 @@
 
     <div class="list-group list-group-flush scrollarea">
 <div class="container my-5">
-    <div class="row p-4 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
+    <div class="row p-4 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg" id="track-entry-app">
         <div class="col-lg-5 p-3 p-lg-5 pt-lg-2">
                     <h4 class="display-6 fw-semibold lh-1">Register tracked time</h4>
 
@@ -26,11 +26,20 @@
                     <div class="col">
                         <label class="fw-semibold">Project name</label>
         <div class="form-group mt-1">
-            <select class="form-control" name="project" v-model="project">
+            <select class="form-control" name="project" v-model="project" v-on:change="getTasks()">
 <option value="">Choose project</option>
                     {% for project in projects %}
                         <option value="{{ project.id }}">{{ project.title }}</option>
                     {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group mt-1">
+            <select class="form-control" name="task" v-model="task">
+
+
+                        <option v-for="task in tasks" v-bind:key="task.id" :value="task.id">[[ task.title ]]</option>
+
             </select>
         </div>
     </div>

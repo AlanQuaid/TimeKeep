@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
-from timetracking.timer import start_timer, stop_timer, discard_timer
+from timetracking.timer import start_timer, stop_timer, discard_timer, get_tasks
 from timetracking.views import (
     home,
     shop,
@@ -42,4 +42,5 @@ urlpatterns = [
     path("timetracking/timer/start_timer/", start_timer, name='start_timer'),
     path("timetracking/timer/stop_timer/", stop_timer, name='stop_timer'),
     path("timetracking/timer/discard_timer/", discard_timer, name='discard_timer'),
+    path('timetracking/timer/get_tasks/', get_tasks, name='get_tasks'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

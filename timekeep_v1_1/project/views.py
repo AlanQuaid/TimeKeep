@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import datetime
 
-from .models import Project, Entry
+from .models import Project, Task, Entry
 from team.models import Team
 
 
@@ -35,6 +35,58 @@ def projects(request):
 def project(request, project_id):
     team = get_object_or_404(Team, pk=request.user.userprofile.active_team_id, status=Team.ACTIVE)
     project = get_object_or_404(Project, team=team, pk=project_id)
+    tasks = project.tasks.all()
+
+
+    if request.method == 'POST':
+        form_type = request.POST.get('type', None)
+        if form_type == 'edit_projct':
+            title = request.POST.get('edit_proj')
+
+            if title:
+                project.title = title
+                project.save()
+
+                messages.info(request, 'The changes was saved!')
+
+                return redirect('project:project', project_id=project.id)
+
+        if form_type == 'add_time':
+            hours = int(request.POST.get('hours', 0))
+            minutes = int(request.POST.get('minutes', 0))
+            date = '%s %s' % (request.POST.get('date'), datetime.now().time())
+            minutes_total = int(hours) * 60 + int(minutes)
+            task = request.POST.get('task')
+
+            if task:
+
+                entry = Entry.objects.create(team=team, project=project, task_id=task, minutes=minutes_total, created_by=request.user,
+                                         created_at=date, is_tracked=True)
+
+                return redirect('project:project', project_id=project.id)
+            else:
+                messages.error(request, '"Task" can not be empty! Choose a project.')
+
+
+        if form_type == 'add_task':
+            title = request.POST.get('add_tsk')
+
+            if title:
+                task = Task.objects.create(team=team, project=project, created_by=request.user, title=title)
+
+                messages.info(request, 'The task was added.')
+
+                return redirect('project:project', project_id=project.id)
+
+
+    return render(request, 'project/project.html', {'today': datetime.today(), 'team': team, 'project': project, 'tasks': tasks})
+
+
+@login_required
+def task(request, project_id, task_id):
+    team = get_object_or_404(Team, pk=request.user.userprofile.active_team_id, status=Team.ACTIVE)
+    project = get_object_or_404(Project, team=team, pk=project_id)
+    task = get_object_or_404(Task, pk=task_id, team=team)
 
     if request.method == 'POST':
         form_type = request.POST.get('type', None)
@@ -55,14 +107,11 @@ def project(request, project_id):
             date = '%s %s' % (request.POST.get('date'), datetime.now().time())
             minutes_total = int(hours) * 60 + int(minutes)
 
-            entry = Entry.objects.create(team=team, project=project, minutes=minutes_total, created_by=request.user,
+            entry = Entry.objects.create(team=team, project=project, task=task, minutes=minutes_total, created_by=request.user,
                                          created_at=date, is_tracked=True)
-            return redirect('project:project', project_id=project.id)
-    return render(request, 'project/project.html', {'today': datetime.today(), 'team': team, 'project': project})
+            return redirect('project:task', project_id=project.id, task_id=task.id)
 
-
-
-
+    return render(request, 'project/task.html', {'today': datetime.today(), 'team': team, 'project': project, 'task': task})
 
 @login_required
 def edit_entry(request, project_id, entry_id):
@@ -107,9 +156,11 @@ def add_entry(request, entry_id):
         hours = int(request.POST.get('hours', 0))
         minutes = int(request.POST.get('minutes', 0))
         project = request.POST.get('project')
+        task = request.POST.get('task')
 
-        if project:
+        if project and task:
             entry.project_id = project
+            entry.task_id = task
             entry.minutes = (hours * 60) + minutes
             entry.created_at = '%s %s' % (request.POST.get('date'), entry.created_at.time())
             entry.is_tracked = True
@@ -143,7 +194,7 @@ def delete_entry(request, project_id, entry_id):
 
     messages.info(request, 'Entry was deleted!')
 
-    return redirect('project:project', project_id=project.id)
+    return redirect(request.META['HTTP_REFERER'])
 
 
 

@@ -29,6 +29,7 @@ def summary(request):
             if title:
                 team = Team.objects.create(title=title, created_by=request.user)
                 team.members.add(request.user)
+                team.managers.add(request.user)
                 team.save()
 
                 userprofile = request.user.userprofile
@@ -130,14 +131,14 @@ def view_user(request, user_id):
 
     num_days = int(request.GET.get('num_days', 0))
     date_user = datetime.now() - timedelta(days=num_days)
-    date_entries = Entry.objects.filter(team=team, created_by=request.user, created_at__date=date_user, is_tracked=True)
+    date_entries = Entry.objects.filter(team=team, created_by=user.id, created_at__date=date_user, is_tracked=True)
 
     user_num_months = int(request.GET.get('user_num_months', 0))
     user_month = datetime.now() - relativedelta(months=user_num_months)
 
     for project in all_projects:
         project.time_for_user_and_project_and_month = get_time_for_user_and_project_and_month(team, project,
-                                                                                              request.user, user_month)
+                                                                                              user, user_month)
 
     context = {
         'team': team,
@@ -148,8 +149,8 @@ def view_user(request, user_id):
         'date_user': date_user,
         'user_num_months': user_num_months,
         'user_month': user_month,
-        'time_for_user_and_month': get_time_for_user_and_month(team, request.user, user_month),
-        'time_for_user_and_date': get_time_for_user_and_date(team, request.user, date_user),
+        'time_for_user_and_month': get_time_for_user_and_month(team, user, user_month),
+        'time_for_user_and_date': get_time_for_user_and_date(team, user, date_user),
 
     }
 

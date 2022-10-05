@@ -5,161 +5,79 @@
 {% block title %}Projects | {% endblock %}
 
 {% block content %}
-<div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-white" style="width: 83%; height: 94vh">
-    <div class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
-        <svg class="bi pe-none me-2" width="30" height="24">
-            <use xlink:href="#clock"/>
-        </svg>
+<form method="post" action=".">
+        {% csrf_token %}
+                    <div class="col">
+                        <label class="fw-semibold">Project name</label>
+        <div class="form-group mt-1">
+            <select class="form-control" name="project" v-model="project" v-on:change="getTasks()">
+<option value="">Choose project</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}">{{ project.title }}</option>
+                    {% endfor %}
+            </select>
+        </div>
 
-        <span class="fs-5 fw-semibold "><a class="active">Projects</a></span>
-
-
-    </div>
-    <div class="list-group list-group-flush scrollarea">
-        <div class="container">
-            <div class="main-body">
-
-            {% for teamz in teams %}
-                <div class="row gutters-sm mt-4">
-                    <div class="col-md-4 mb-3">
-                        <div class="card">
+        <div class="form-group mt-1">
+            <select class="form-control" name="task" v-model="task">
 
 
-                            <div class="card-header py-2">
-                                <h4 class="my-0 fw-semibold">{{ teamz.title }} {% if teamz == active_team %}(Active){% endif %}</h4>
-                            </div>
+                        <option v-for="task in tasks" v-bind:key="task.id" :value="task.id">[[ task.title ]]</option>
 
-                            <div class="card-body">
-                                <ul class="list-group shadow-none">
-                                    <li class="list-group-item">
-                                        <div class="list-icon">
-
-                                        </div>
-                                        <div class="list-details">
-                                            <span class="fw-semibold">Members</span>
-                                            <small></small>
-                                        </div>
-                                    </li>
-                                {% for member in teamz.members.all %}
-                                    <li class="list-group-item">
-                                        <div class="list-details">
-                                            <span>{{ member.username }}</span>
-
-                                        </div>
-                                    </li>
-                                </ul>
-                                {% endfor %}
-                            </div>
-                            {% if teamz != active_team %}
-
-
-                            <div class="card-footer text-center">
-                                <div class="row">
-                                    <div>
-
-
-                                        <button type="button" class="btn btn-success px-4 me-md-2 w-100 fw-semibold" onclick="location.href='{% url 'team:activate_team' teamz.id %}'">Activate</button>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                            {% endif %}
-
-
-                        </div>
-
-
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card mb-3">
-                            <div class="card-header py-2 container-fluid">
-                                <div class="row">
-                                    <div class="col-md-9">
-                                        <h4 class="w-75 my-0 fw-semibold">{{ teamz.title }}'s projects</h4>
-                                    </div>
-                                    <div class="col-md-3 float-right">
-                                        {% if active_team %}
-                                            {% if team.plan.max_projects_per_team > team.projects.count %}
-                                                    <button type="button"
-                                                            class="btn btn-success px-4 me-md-2 w-100 fw-semibold"
-                                                            data-bs-toggle="modal" data-bs-target="#addProjModal">Add
-                                                        project
-                                                    </button>
-                                                {% else %}
-
-                                                        {% if team.created_by == request.user %}
-                                                        <button type="button"
-                                                            class="btn btn-warning px-4 me-md-2 w-100 fw-semibold"
-                                                            onclick="location.href='{% url 'team:plans' %}'">Upgrade plan
-                                                    </button>
-
-                                                        {% else %}
-                                                            <button type="button"
-                                                            class="btn btn-outline-secondary px-4 me-md-2 w-100 fw-semibold" disabled>Contact team owner to upgrade subscription.
-                                                    </button>
-                                                        {% endif %}
-
-                                            {% endif %}
-                                        {% else %}
-                                        <button type="button" class="btn btn-success px-4 me-md-2 w-100 fw-semibold" data-bs-toggle="modal" data-bs-target="#addTeamModal">Add team first</button>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="card-body">
-
-
-                                <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-
-
-                                    {% for project in teamz.projects.all %}
-                                    <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm">
-                                            <div class="card-header py-2">
-                                                <h4 class="my-0 fw-semibold">{{ project.title }}</h4>
-                                            </div>
-
-                                            <div class="card-body">
-
-                                                <h5>{{ project.registered_time|format_minutes }}</h5>
-
-                                            </div>
-                                                                        {% if teamz == active_team %}
-                                            <div class="card-footer text-center">
-                                <div class="row">
-                                    <div>
-
-
-                                        <button type="button" class="btn btn-outline-secondary px-4 me-md-2 w-100 fw-semibold" onclick="location.href='{% url 'project:project' project.id %}'">Details</button>
-
-
-                                    </div>
-                                </div>
-                            </div>
-                                                                        {% endif %}
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <h5>No projects yet</h5>
-                                    {% endfor %}
-
-
-                                </div>
-
-
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <hr>
-                {% endfor %}
-            </div>
+            </select>
         </div>
     </div>
-</div>
+    <div class="row mt-3">
+
+
+                        <div class="col">
+                            <label class="fw-semibold">Hours</label>
+        <div class="form-group mt-1">
+            <select class="form-control" name="hours">
+<option value="0">0h</option>
+                    {% for i in "x"|rjust:"23" %}
+                        <option value="{{ forloop.counter }}"{% if hours == forloop.counter %} selected{% endif %}>{{ forloop.counter }}h</option>
+                    {% endfor %}
+            </select>
+        </div>
+    </div>
+
+        <div class="col">
+            <label class="fw-semibold">Minutes</label>
+        <div class="form-group mt-1">
+            <select class="form-control" name="minutes">
+                    <option value="0">0m</option>
+                    {% for i in "x"|rjust:"59" %}
+                        <option value="{{ forloop.counter }}"{% if minutes == forloop.counter %} selected{% endif %}>{{ forloop.counter }}m</option>
+                    {% endfor %}
+            </select>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    </div>
+
+    <div class="field mt-3">
+        <label class="fw-semibold">Date</label>
+
+        <div class="control mt-1">
+            <input type="date" id="id_date" class="input form-control" name="date" value="{{ today|date:'Y-m-d' }}" placeholder="yyyy-mm-dd">
+        </div>
+    </div>
+
+
+       <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+                                                            <div class="form-group row mt-3">
+                                                                <div class="col-lg-12">
+                                                                   <button class="btn btn-success active" type="submit">Save Changes</button>
+                                                                </div>
+                                                            </div>
+        </div>
+        </form>
 {% endblock %}

@@ -13,7 +13,6 @@
           integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <link href="https://getbootstrap.com/docs/5.2/examples/sidebars/sidebars.css" rel="stylesheet">
     <script src="https://getbootstrap.com/docs/5.2/examples/sidebars/sidebars.js"></script>
-    <script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.css"
           integrity="sha512-+VDbDxc9zesADd49pfvz7CgsOl2xREI/7gnzcdyA9XjuTxLXrdpuz21VVIqc5HPfZji2CypSbxx1lgD7BgBK5g=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
@@ -21,6 +20,8 @@
             integrity="sha512-ZK6m9vADamSl5fxBPtXw6ho6A4TuX89HUbcfvxa2v2NYNT/7l8yFGJ3JlXyMN4hlNbz0il4k6DvqbIW5CCwqkw=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 
 
@@ -572,8 +573,46 @@
 
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
+
+<script>
+    const TrackEntryApp = {
+        data() {
+            return {
+                tasks: [
+                    {'id': '', 'title': 'Select project first'}
+                ],
+                project: '',
+                task: ''
+            }
+        },
+        delimiters: ['[[', ']]'],
+        methods: {
+            getTasks() {
+                if (this.project !== '') {
+                    fetch('/timetracking/timer/get_tasks/?project_id=' + this.project, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then((response) => {
+                        return response.json()
+                    })
+                    .then((result) => {
+                        this.tasks = result.tasks
+                        this.tasks.unshift({'id': '', 'title': 'Select task'})
+                    })
+                } else {
+                    this.tasks = [{'id': '', 'title': 'Select project first'}]
+                    this.task = ''
+                }
+            },
+        }
+    }
+
+    Vue.createApp(TrackEntryApp).mount('#track-entry-app')
+</script>
 
 <script>
     config={
@@ -584,6 +623,9 @@
     flatpickr("input[type=date]", config);
 
 </script>
+
+
+
 {% block scripts %}
 {% endblock %}
 </body>
