@@ -1,5 +1,6 @@
 asgiref==3.5.2
 gunicorn
+psycopg2==2.8.6
 whitenoise
 backports.zoneinfo;python_version<"3.9"
 certifi==2022.6.15
