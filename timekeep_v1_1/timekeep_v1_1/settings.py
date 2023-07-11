@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'timekeep_v1_1.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql.psycopg2',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'db',
         'USER': 'db',
         'PASSWORD': 'AVNS_SZVlfTLhQVAeFfoaIX2',
